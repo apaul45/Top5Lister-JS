@@ -15,19 +15,37 @@ export default class Top5Controller {
  
    initHandlers() {
        // SETUP THE TOOLBAR BUTTON HANDLERS
-       document.getElementById("add-list-button").onmousedown = (event) => {
-           let newList = this.model.addNewList("Untitled", ["?","?","?","?","?"]);           
-           this.model.loadList(newList.id);
-           this.model.saveLists();
+       let addButton = document.getElementById("add-list-button");
+       addButton.onmousedown = (event) => {
+           if (!addButton.classList.contains("disabled")){
+            let newList = this.model.addNewList("Untitled", ["?","?","?","?","?"]);           
+            this.model.loadList(newList.id);
+            this.model.saveLists();
+            document.getElementById("current-list-name").innerHTML = "Top 5 " + newList.getName();
+            //Make sure the new list is visibly selected
+            // document.getElementById("top5-list-" + newList.id).classList.add("selected-list-card");
+           }
        }
        document.getElementById("undo-button").onmousedown = (event) => {
            this.model.undo();
+       }
+       document.getElementById("redo-button").onmousedown = (event) => {
+            this.model.redo();
+       }
+       let closeButton = document.getElementById("close-button");
+       closeButton.onmousedown = (event) =>{
+           //If the close button isn't disabled, then call model.closeList() 
+           let closeClassList = closeButton.classList;
+           if (!closeClassList.contains("disabled")){
+                this.model.closeList();
+            }
        }
        // SETUP THE ITEM HANDLERS
        for (let i = 1; i <= 5; i++) {
            let item = document.getElementById("item-" + i);
  
            // AND FOR TEXT EDITING
+           //Make sure to update visibility of redo and undo buttons
            item.ondblclick = (ev) => {
                if (this.model.hasCurrentList()) {
                    // CLEAR THE TEXT
@@ -93,6 +111,8 @@ export default class Top5Controller {
                this.model.sortLists();
                this.model.saveLists();
                modal.classList.remove("is-visible");
+               //Make sure the selected list (if it isn't the deleted list) stays highlighted
+               this.model.selectList();
            }
            cancel.onclick = (event) => {
                modal.classList.remove("is-visible");
@@ -132,6 +152,8 @@ export default class Top5Controller {
                        //Sort and save the list after changing the name
                        this.model.sortLists();
                        this.model.saveLists();
+                       //Make sure to update the name shown in the status bar once the user enters a new name
+                       document.getElementById("current-list-name").innerHTML="Top 5 " + textInput.value;
                    }
                }
            }

@@ -70,6 +70,16 @@ export default class Top5Model {
        this.top5Lists.splice(listIndex, 1);
        let listsElement = document.getElementById("sidebar-list");
        listsElement.removeChild(document.getElementById("top5-list-" + id));
+       //After deleting the list, disable close and enable add list after clearing items
+       //^^ONLY IF THE DELETED LIST WAS THE SELECTED ONE
+       if (document.getElementsByClassName("selected-list-card").length == 0){
+            this.view.update(false);
+            //Make sure current list is null after a list has been deleted
+            this.currentList = null;
+            this.view.enableButton("add-list-button");
+            this.view.disableButton("close-button");
+            document.getElementById("current-list-name").innerHTML = "";
+       }
    }
    sortLists() {
        this.top5Lists.sort((listA, listB) => {
@@ -107,6 +117,7 @@ export default class Top5Model {
                // THIS IS THE LIST TO LOAD
                this.currentList = list;
                this.view.update(this.currentList);
+               this.unselectAll();
                this.view.highlightList(id);
                found = true;
            }
@@ -114,6 +125,10 @@ export default class Top5Model {
        }
        this.tps.clearAllTransactions();
        this.view.updateToolbarButtons(this);
+       //Make sure close is enabled when a list is loaded
+       this.view.enableButton("close-button");
+       //Make sure to disable the add list button when a list is loaded
+       this.view.disableButton("add-list-button");
    }
    /* Checks to see if there are lists stored in the browser's local storage, and
    retrieves those lists if so */
@@ -139,13 +154,28 @@ export default class Top5Model {
            return true;
        }       
    }
- 
+   //If close is pressed and isn't disabled, then close the loaded list and 
+   // return the site to a default page
+   closeList(){
+       this.unselectAll();
+       this.view.update(false);
+       document.getElementById("current-list-name").innerHTML = "";
+       //Make sure to disable closeList once the loaded list is closed
+       this.view.disableButton("close-button");
+       //Make sure to enable the addList button once close has been pressed
+       this.view.enableButton("add-list-button");
+   }
    saveLists() {
        // WILL THIS WORK? @todo
        let top5ListsString = JSON.stringify(this.top5Lists);
        localStorage.setItem("recent_work", top5ListsString);
    }
- 
+   //Make sure the selected list stays highlighted after refreshList or another method is called
+   selectList(){
+        if (this.hasCurrentList()){
+            this.view.highlightList(this.currentList.getId());
+        }
+   }
    restoreList() {
        this.view.update(this.currentList);
    }
@@ -155,6 +185,7 @@ export default class Top5Model {
        let oldText = this.currentList.items[id];
        let transaction = new ChangeItem_Transaction(this, id, oldText, newText);
        this.tps.addTransaction(transaction);
+       this.view.updateToolbarButtons(this);
    }
  
    changeItem(id, text) {
@@ -162,11 +193,16 @@ export default class Top5Model {
        this.view.update(this.currentList);
        this.saveLists();
    }
- 
    // SIMPLE UNDO/REDO FUNCTIONS
    undo() {
        if (this.tps.hasTransactionToUndo()) {
            this.tps.undoTransaction();
+           this.view.updateToolbarButtons(this);
+       }
+   }
+   redo(){
+       if (this.tps.hasTransactionToRedo()){
+           this.tps.doTransaction();
            this.view.updateToolbarButtons(this);
        }
    }

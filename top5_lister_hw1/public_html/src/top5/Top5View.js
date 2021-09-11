@@ -34,7 +34,6 @@
         card.setAttribute("id", listId);
         card.setAttribute("class", "list-card");
         card.setAttribute("class", "unselected-list-card");
-
         // MAKE THE TEXT SPAN
         let textSpan = document.createElement("span");
         textSpan.setAttribute("id", "list-card-text-" + newList.id);
@@ -59,15 +58,22 @@
         // SETUP THE HANDLER FOR WHEN SOMEONE MOUSE CLICKS ON OUR LIST
         this.controller.registerListSelectHandlers(newList.id);
     }
-
     update(list) {
-        for (let i = 0; i < 5; i++) {
-            let item = document.getElementById("item-" + (i+1));
-            item.innerHTML = "";
-            item.appendChild(document.createTextNode(list.getItemAt(i)));
+        //If false is sent in as a argument, that means the loaded list should be cleared
+        if (list==false){
+            for (let i = 0; i < 5; i++) {
+                let item = document.getElementById("item-" + (i+1));
+                item.innerHTML = "";
+            }
+        }
+        else{
+            for (let i = 0; i < 5; i++) {
+                let item = document.getElementById("item-" + (i+1));
+                item.innerHTML = "";
+                item.appendChild(document.createTextNode(list.getItemAt(i)));
+            }
         }
     }
-
     clearWorkspace() {
         // REMOVE THE ITEMS
         for (let i = 0; i < 5; i++) {
@@ -94,19 +100,25 @@
     }
 
     unhighlightList(listId) {
-        // HIGHLIGHT THE LIST
+        // UNHIGHLIGHT (UNSELECT) THE LIST
         let listCard = document.getElementById("top5-list-" + listId);
         listCard.classList.add("unselected-list-card");
         listCard.classList.remove("selected-list-card");
     }
-
-    updateToolbarButtons(model) {
+    //Update visibility of undo or redo after performing either one
+    updateToolbarButtons(model){
         let tps = model.tps;
-        if (!tps.hasTransactionToUndo()) {
-            this.disableButton("undo-button");
+        if (tps.hasTransactionToRedo()){
+            this.enableButton("redo-button");
         }
-        else {
+        else{
+            this.disableButton("redo-button");
+        }
+        if (tps.hasTransactionToUndo()){
             this.enableButton("undo-button");
-        }   
+        }
+        else{
+            this.disableButton("undo-button")
+        }
     }
 }

@@ -135,14 +135,19 @@ export default class jsTPS {
      */
     addTransaction(transaction) {
         // ARE WE BRANCHING?
+        /* IF ADDING A TRANSACTION & NOT AT TOP OF STACK, WHATEVER IS IN FRONT OF MOST RECENT
+        TRANSACTION ARE REMOVED TO BE REPLACED BY THE NEW TRANSACTION */ 
         if ((this.mostRecentTransaction < 0) 
             || (this.mostRecentTransaction < (this.transactions.length - 1))) {
                 for (let i = this.transactions.length - 1; i > this.mostRecentTransaction; i--) {
+                    /* IF ADDING A TRANSACTION & NOT AT TOP OF STACK, WHATEVER IS IN FRONT OF MOST RECENT
+                      TRANSACTION ARE REMOVED TO BE REPLACED BY THE NEW TRANSACTION */ 
                     this.transactions.splice(i, 1);
                 }
                 this.numTransactions = this.mostRecentTransaction + 2;
         }
         else {
+            //IF ALREADY AT TOP OF STACK, THEN NO NEED TO DELETE ANY TRANSACTIONS
             this.numTransactions++;
         }
 
@@ -183,7 +188,6 @@ export default class jsTPS {
             this.performingUndo = false;
         }
     }
-
     /**
      * clearAllTransactions
      * 
