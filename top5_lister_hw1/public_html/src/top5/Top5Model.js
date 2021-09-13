@@ -1,6 +1,7 @@
 import jsTPS from "../common/jsTPS.js"
 import Top5List from "./Top5List.js";
 import ChangeItem_Transaction from "./transactions/ChangeItem_Transaction.js"
+import DragAndDropTransaction from "./transactions/DragAndDropTransaction.js";
  
 /**
 * Top5Model.js
@@ -158,12 +159,13 @@ export default class Top5Model {
    // return the site to a default page
    closeList(){
        this.unselectAll();
-       this.view.update(false);
+       this.view.clearWorkspace();
        document.getElementById("current-list-name").innerHTML = "";
        //Make sure to disable closeList once the loaded list is closed
        this.view.disableButton("close-button");
        //Make sure to enable the addList button once close has been pressed
        this.view.enableButton("add-list-button");
+       this.currentList = null;
    }
    saveLists() {
        // WILL THIS WORK? @todo
@@ -190,6 +192,19 @@ export default class Top5Model {
  
    changeItem(id, text) {
        this.currentList.items[id] = text;
+       this.view.update(this.currentList);
+       this.saveLists();
+   }
+   addDragItemTransaction = (oldIndex, newIndex) => {
+       if (this.hasCurrentList()){
+            let oldList = this.currentList.getItems();
+            let transaction = new DragAndDropTransaction(this, this.currentList.getItems(), oldIndex, newIndex);
+            this.tps.addTransaction(transaction);
+            this.view.updateToolbarButtons(this);
+       }
+   }
+   dragDropItem(dragIndex, dropIndex){
+       this.currentList.moveItem(dragIndex, dropIndex);
        this.view.update(this.currentList);
        this.saveLists();
    }

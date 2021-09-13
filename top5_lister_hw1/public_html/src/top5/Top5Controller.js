@@ -5,7 +5,6 @@
 */
 export default class Top5Controller {
    constructor() {
- 
    }
  
    setModel(initModel) {
@@ -43,14 +42,14 @@ export default class Top5Controller {
        // SETUP THE ITEM HANDLERS
        for (let i = 1; i <= 5; i++) {
            let item = document.getElementById("item-" + i);
- 
+           item.draggable = true;
+           item.droppable = true;
            // AND FOR TEXT EDITING
            //Make sure to update visibility of redo and undo buttons
            item.ondblclick = (ev) => {
                if (this.model.hasCurrentList()) {
                    // CLEAR THE TEXT
                    item.innerHTML = "";
- 
                    // ADD A TEXT FIELD
                    let textInput = document.createElement("input");
                    textInput.setAttribute("type", "text");
@@ -58,7 +57,9 @@ export default class Top5Controller {
                    textInput.setAttribute("value", this.model.currentList.getItemAt(i-1));
  
                    item.appendChild(textInput);
- 
+                   const inputVal = textInput.value;
+                   textInput.value = "";
+                   textInput.value = inputVal;
                    textInput.ondblclick = (event) => {
                        this.ignoreParentClick(event);
                    }
@@ -72,13 +73,37 @@ export default class Top5Controller {
                    }
                }
            }
-       }
-   }
- 
+           //FOR DRAG & DROP: Use onddragstart to get old index, and ondragover to get new index
+           // and ondrop to execute the drag and drop
+           item.ondragstart = (event) => {
+               //If there is no list loaded, don't allow the drag to occur
+               if (!this.model.hasCurrentList()){
+                   event.preventDefault();
+               }
+               else{
+                    event.dataTransfer.effectAllowed = "move";
+                    this.oldIndex = i-1;
+                    console.log("on drag start worked");
+               }
+           }
+           item.ondragover = (event) => {
+               event.preventDefault();
+               event.dataTransfer.effectAllowed = "move";
+               this.newIndex = i-1;
+               console.log("on drag over worked");
+           }
+           item.ondrop = (event) => {
+               event.preventDefault();
+               this.model.addDragItemTransaction(this.oldIndex, this.newIndex);
+               console.log("on drop worked");
+           }
+        }
+    }
    registerListSelectHandlers(id) {
        let thisList = document.getElementById("top5-list-" + id);
        // FOR SELECTING THE LIST
        thisList.onmousedown = (event) => {
+           //If 
            this.model.unselectAll();
            // GET THE SELECTED LIST
            this.model.loadList(id);
@@ -142,10 +167,16 @@ export default class Top5Controller {
                        this.model.sortLists();
                        this.model.saveLists();
                        enterPressed = true;
+                       document.getElementById("current-list-name").innerHTML="Top 5 " + textInput.value;
                    }
                }
                textInput.onblur = (event) => {
                    if (!enterPressed){
+                       //If another list has been loaded, make sure not to change the name of that list too
+                       if (this.model.currentList.getId() != id){
+                            nameSpan.innerHTML = textInput.value;
+                            this.model.getList(this.model.getListIndex(id)).setName(textInput.value);
+                       }
                        //Set the displayed and actual name of the list to the inputted text
                        nameSpan.innerHTML = textInput.value;
                        this.model.currentList.setName(textInput.value);

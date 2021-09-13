@@ -35,8 +35,11 @@
     setItems(initItems) {
         this.items = initItems;
     }
-
+    getItems(){
+        return this.items;
+    }
     moveItem(oldIndex, newIndex) {
+        //At position of new index, add 
         this.items.splice(newIndex, 0, this.items.splice(oldIndex, 1)[0]);
     }
 }

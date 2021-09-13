@@ -59,19 +59,10 @@
         this.controller.registerListSelectHandlers(newList.id);
     }
     update(list) {
-        //If false is sent in as a argument, that means the loaded list should be cleared
-        if (list==false){
-            for (let i = 0; i < 5; i++) {
-                let item = document.getElementById("item-" + (i+1));
-                item.innerHTML = "";
-            }
-        }
-        else{
-            for (let i = 0; i < 5; i++) {
-                let item = document.getElementById("item-" + (i+1));
-                item.innerHTML = "";
-                item.appendChild(document.createTextNode(list.getItemAt(i)));
-            }
+        for (let i = 0; i < 5; i++) {
+            let item = document.getElementById("item-" + (i+1));
+            item.innerHTML = "";
+            item.appendChild(document.createTextNode(list.getItemAt(i)));
         }
     }
     clearWorkspace() {
@@ -81,7 +72,6 @@
             item.innerHTML = "";
         }
     }
-
     disableButton(id) {
         let button = document.getElementById(id);
         button.classList.add("disabled");
