@@ -74,13 +74,16 @@ export default class Top5Model {
        //After deleting the list, disable close and enable add list after clearing items
        //^^ONLY IF THE DELETED LIST WAS THE SELECTED ONE
        if (document.getElementsByClassName("selected-list-card").length == 0){
-            this.view.update(false);
+            this.view.clearWorkspace();
             //Make sure current list is null after a list has been deleted
             this.currentList = null;
             this.view.enableButton("add-list-button");
             this.view.disableButton("close-button");
             document.getElementById("current-list-name").innerHTML = "";
        }
+       //Make sure to clear the transaction stack after deletion 
+       this.tps.clearAllTransactions();
+       this.view.updateToolbarButtons(this);
    }
    sortLists() {
        this.top5Lists.sort((listA, listB) => {
@@ -124,12 +127,15 @@ export default class Top5Model {
            }
            i++;
        }
+       //When a list is clicked on, makre sure all transactions on the stack
+       //are closed (same for close list)
        this.tps.clearAllTransactions();
        this.view.updateToolbarButtons(this);
        //Make sure close is enabled when a list is loaded
        this.view.enableButton("close-button");
        //Make sure to disable the add list button when a list is loaded
        this.view.disableButton("add-list-button");
+       //Make sure 
    }
    /* Checks to see if there are lists stored in the browser's local storage, and
    retrieves those lists if so */
@@ -165,6 +171,11 @@ export default class Top5Model {
        this.view.disableButton("close-button");
        //Make sure to enable the addList button once close has been pressed
        this.view.enableButton("add-list-button");
+       //Disable both undo and redo
+       //When the user closes the list, make sure all transactions on the stack
+       //are cleared 
+       this.tps.clearAllTransactions();
+       this.view.updateToolbarButtons(this);
        this.currentList = null;
    }
    saveLists() {

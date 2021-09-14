@@ -10,8 +10,9 @@ export default class Top5Controller {
    setModel(initModel) {
        this.model = initModel;
        this.initHandlers();
+       this.edited = false;
    }
- 
+
    initHandlers() {
        // SETUP THE TOOLBAR BUTTON HANDLERS
        let addButton = document.getElementById("add-list-button");
@@ -103,12 +104,13 @@ export default class Top5Controller {
        let thisList = document.getElementById("top5-list-" + id);
        // FOR SELECTING THE LIST
        thisList.onmousedown = (event) => {
-           //If 
+           if (!this.edited){
            this.model.unselectAll();
            // GET THE SELECTED LIST
            this.model.loadList(id);
            //Set the status bar to the name of this list
            document.getElementById("current-list-name").innerHTML= "Top 5 " + this.model.currentList.getName();
+           }
        }
        // //For highlighting
        // thisList.onmouseenter = (event) =>{
@@ -145,6 +147,7 @@ export default class Top5Controller {
        }
        let nameSpan = document.getElementById("list-card-text-" + id);
        nameSpan.ondblclick = (event) => {
+           this.edited =true;
            if (this.model.hasCurrentList()){
                // CLEAR THE TEXT
                thisList.innerHTML = "";
@@ -168,6 +171,7 @@ export default class Top5Controller {
                        this.model.saveLists();
                        enterPressed = true;
                        document.getElementById("current-list-name").innerHTML="Top 5 " + textInput.value;
+                       this.edited = false;
                    }
                }
                textInput.onblur = (event) => {
@@ -185,6 +189,7 @@ export default class Top5Controller {
                        this.model.saveLists();
                        //Make sure to update the name shown in the status bar once the user enters a new name
                        document.getElementById("current-list-name").innerHTML="Top 5 " + textInput.value;
+                       this.edited = false;
                    }
                }
            }
