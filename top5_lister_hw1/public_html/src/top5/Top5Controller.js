@@ -171,6 +171,10 @@ export default class Top5Controller {
                        this.model.saveLists();
                        enterPressed = true;
                        document.getElementById("current-list-name").innerHTML="Top 5 " + textInput.value;
+                       //If a list gets edited, make sure tht list is the one that is highlighted
+                       //(it will be loaded automatically cause of onmousedown being executed before ondblclick)
+                       this.model.unselectAll();
+                       this.model.view.highlightList(id);
                        this.edited = false;
                    }
                }
@@ -189,6 +193,10 @@ export default class Top5Controller {
                        this.model.saveLists();
                        //Make sure to update the name shown in the status bar once the user enters a new name
                        document.getElementById("current-list-name").innerHTML="Top 5 " + textInput.value;
+                       //If a list gets edited, make sure tht list is the one that is highlighted
+                       //(it will be loaded automatically cause of onmousedown being executed before ondblclick)
+                       this.model.unselectAll();
+                       this.model.view.highlightList(id);
                        this.edited = false;
                    }
                }
