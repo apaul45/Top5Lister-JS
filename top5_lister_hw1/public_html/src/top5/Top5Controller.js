@@ -49,6 +49,7 @@ export default class Top5Controller {
            //Make sure to update visibility of redo and undo buttons
            item.ondblclick = (ev) => {
                if (this.model.hasCurrentList()) {
+                   item.draggable = false;
                    // CLEAR THE TEXT
                    item.innerHTML = "";
                    // ADD A TEXT FIELD
@@ -67,10 +68,12 @@ export default class Top5Controller {
                    textInput.onkeydown = (event) => {
                        if (event.key === 'Enter') {
                            this.model.addChangeItemTransaction(i-1, event.target.value);
+                           item.draggable = true;
                        }
                    }
                    textInput.onblur = (event) => {
                        this.model.restoreList();
+                       item.draggable = true;
                    }
                }
            }
