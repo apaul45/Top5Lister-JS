@@ -60,6 +60,7 @@ export default class Top5Model {
        this.top5Lists.push(newList);
        this.sortLists();
        this.saveLists();
+       this.currentList = newList;
        return newList;
    }
    deleteList(id){
@@ -112,6 +113,11 @@ export default class Top5Model {
    }
  
    loadList(id) {
+       if ((this.currentList != null) && (!(this.currentList.getId() === id))){
+            //If ANOTHER list is clicked on, make sure all transactions on the stack
+            //are closed (same for close list)
+            this.tps.clearAllTransactions();
+       }
        let list = null;
        let found = false;
        let i = 0;
@@ -127,15 +133,11 @@ export default class Top5Model {
            }
            i++;
        }
-       //When a list is clicked on, makre sure all transactions on the stack
-       //are closed (same for close list)
-       this.tps.clearAllTransactions();
        this.view.updateToolbarButtons(this);
        //Make sure close is enabled when a list is loaded
        this.view.enableButton("close-button");
        //Make sure to disable the add list button when a list is loaded
        this.view.disableButton("add-list-button");
-       //Make sure 
    }
    /* Checks to see if there are lists stored in the browser's local storage, and
    retrieves those lists if so */
